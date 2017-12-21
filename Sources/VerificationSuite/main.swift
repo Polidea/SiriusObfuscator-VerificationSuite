@@ -21,14 +21,27 @@ let buildPathAfterObfuscation = "ObfuscatedBuild"
 let unobfuscatedExecutablePath = executableFromProjectBuild(xcodeproj: xcodeprojBeforeObfuscation, scheme: schemeBeforeObfuscation, outputPath: buildPathBeforeObfuscation)
 let obfuscatedExecutablePath = executableFromProjectBuild(xcodeproj: xcodeprojAfterObfuscation, scheme: schemeAfterObfuscation, outputPath: buildPathAfterObfuscation)
 
+// extract symbol names from executables and demangle them
 
-// TODO:
-// - extract swift symbols from executables
-// - demangle them
-// - compare symbols before / after obfuscation
+let symbolsBefore = demangle(symbols: extractSymbolNames(executable: unobfuscatedExecutablePath))
+let symbolsBeforeFile = "before.txt"
+printToFile(string: symbolsBefore, filename: symbolsBeforeFile)
 
+let symbolsAfter = demangle(symbols: extractSymbolNames(executable: obfuscatedExecutablePath))
+let symbolsAfterFile = "after.txt"
+printToFile(string: symbolsAfter, filename: symbolsAfterFile)
 
-// remove build directories
+// compare symbol names before / after obfuscation
+
+print("\n\nDIFF BEFORE / AFTER OBFUSCATION:")
+let diff = diffFiles(before: symbolsBeforeFile, after: symbolsAfterFile)
+print(diff)
+
+// remove build directories and symbol files
 
 removeDirectory(buildPathBeforeObfuscation)
 removeDirectory(buildPathAfterObfuscation)
+
+removeFile(symbolsBeforeFile)
+removeFile(symbolsAfterFile)
+

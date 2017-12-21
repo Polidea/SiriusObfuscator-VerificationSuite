@@ -40,6 +40,41 @@ func xcodebuild(project: String, scheme: String, outputBuildPath: String) -> Str
   return try! shellOut(to: "xcodebuild", arguments: arguments)
 }
 
+func extractSymbolNames(executable: String) -> [String] {
+  // TODO: for now, we expect the system to provide us with the nm tool available and globally linked
+  // - consider adding nm tool path as script parameter
+  let nmOutput = try! shellOut(to: "nm", arguments: [executable, "-format=posix"])
+  let lines = nmOutput.components(separatedBy: "\n").filter { !$0.isEmpty }
+  let symbolNames = lines.map { $0.components(separatedBy: " ").first! }
+  return symbolNames
+}
+
+func demangle(symbols: [String]) -> String {
+  // TODO: for now, we expect the system to provide us with the xcrun tool available and globally linked
+  // - consider adding xcrun tool path as script parameter
+  let demangleExec = try! shellOut(to: "xcrun", arguments: ["--find", "swift-demangle"])
+  return try! shellOut(to: demangleExec, arguments: ["-compact"] + symbols)
+}
+
+func printToFile(string: String, filename: String) {
+  try! shellOut(to: "echo", arguments: ["'\(string)'", ">", filename])
+}
+
+func diffFiles(before: String, after: String) -> String {
+  do {
+    let diff = try shellOut(to: "diff", arguments: [before, after])
+    return diff
+  } catch let error {
+    print("Error while diffing files: \(error.localizedDescription)")
+    return ""
+  }
+}
+
 func removeDirectory(_ path: String) {
   try! shellOut(to: "rm", arguments: ["-rf", path])
 }
+
+func removeFile(_ path: String) {
+  try! shellOut(to: "rm", arguments: [path])
+}
+
