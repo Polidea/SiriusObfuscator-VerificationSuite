@@ -9,7 +9,7 @@ It uses `nm` to extract symbols from the binary and `swift-demangle` for demangl
 ## Usage
 
 ```bash
-$ VerificationSuite <original-project-xcodeproj-file> <original-project-scheme> <obfuscated-project-xcodeproj-file> <obfuscated-project-scheme>
+$ VerificationSuite -originalxcodeproj <original-project-xcodeproj-file> -originalscheme <original-project-scheme> -obfuscatedxcodeproj <obfuscated-project-xcodeproj-file> -obfuscatedscheme <obfuscated-project-scheme>
 ```
 
 where
